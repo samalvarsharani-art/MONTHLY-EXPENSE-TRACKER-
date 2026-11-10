@@ -1,0 +1,6 @@
+{
+  "summary":  "Implementation plan to resolve the blank white page on GitHub Pages by setting up an automated GitHub Actions build-and-deploy workflow and optional local gh-pages deploy script.",
+  "updatedAt":  "2026-11-10T17:56:27.576624175Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
