@@ -31,11 +31,14 @@ export const auth = getAuth(app);
 // 2. Validate Connection to Firestore on Boot
 async function testConnection() {
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
+    if (db) {
+      await getDocFromServer(doc(db, 'test', 'connection'));
+    }
   } catch (error) {
     if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error('Please check your Firebase configuration.');
+      console.warn('Firebase client is offline or connecting.');
     }
+    // Silently continue so initial UI boot is never blocked
   }
 }
 testConnection();

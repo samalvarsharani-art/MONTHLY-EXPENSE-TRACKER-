@@ -102,7 +102,27 @@ export default function App() {
       setIsInitialized(true);
     });
 
-    return () => unsubscribe();
+    // Safety fallback: if Firebase is slow, offline, or blocked by privacy extensions on GitHub, initialize with local session
+    const timeoutId = setTimeout(() => {
+      setIsInitialized((init) => {
+        if (!init) {
+          const active = getCurrentUser();
+          if (active) {
+            setCurrentUser(active);
+            setCurrentPage(active.profileCompleted && active.monthlyBudget > 0 ? 'dashboard' : 'profile-setup');
+          } else {
+            setCurrentPage('auth');
+          }
+          return true;
+        }
+        return init;
+      });
+    }, 1200);
+
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, []);
 
   const handleAuthSuccess = (user: User) => {
