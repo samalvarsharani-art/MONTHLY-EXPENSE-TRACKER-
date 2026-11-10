@@ -1,0 +1,8 @@
+{
+  "name": "Monthly Expense Tracker",
+  "description": "Track your spending, set monthly budgets, and stay on top of your personal finances with a calm, friendly dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

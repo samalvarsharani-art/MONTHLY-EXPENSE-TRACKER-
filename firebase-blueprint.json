@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile with monthly budget setting, currency preferences, and custom categories.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the user (matching Firebase Auth UID).",
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name of the user.",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "maxLength": 150
+        },
+        "monthlyBudget": {
+          "type": "number",
+          "description": "Monthly spending target budget."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency code (e.g. INR, USD, EUR).",
+          "maxLength": 10
+        },
+        "profileCompleted": {
+          "type": "boolean",
+          "description": "Whether the user completed the initial profile setup."
+        },
+        "customCategories": {
+          "type": "array",
+          "description": "List of user custom expense categories."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO 8601 creation timestamp."
+        }
+      },
+      "required": ["name", "monthlyBudget", "currency", "profileCompleted"]
+    },
+    "Expense": {
+      "title": "Expense Entry",
+      "description": "Individual monthly expense transaction.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique expense record identifier.",
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Identifier of the owner user.",
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Expense title or description.",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "amount": {
+          "type": "number",
+          "description": "Expense monetary amount."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the expense.",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "date": {
+          "type": "string",
+          "description": "Date in local YYYY-MM-DD format.",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes or details.",
+          "maxLength": 300
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO 8601 creation timestamp."
+        }
+      },
+      "required": ["userId", "name", "amount", "category", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Stores private user account information and monthly budget preferences."
+    },
+    "/users/{userId}/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "Stores user expense items scoped strictly under their user account."
+    }
+  }
+}

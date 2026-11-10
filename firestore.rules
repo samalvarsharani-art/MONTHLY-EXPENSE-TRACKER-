@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.matches('^[a-zA-Z0-9_\\-]+$') && id.size() > 0 && id.size() <= 128;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['name', 'monthlyBudget', 'currency', 'profileCompleted']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.monthlyBudget is number && data.monthlyBudget >= 0 &&
+             data.currency is string && data.currency.size() <= 10 &&
+             data.profileCompleted is bool;
+    }
+
+    function isValidExpense(data, userId) {
+      return data.keys().hasAll(['userId', 'name', 'amount', 'category', 'date']) &&
+             data.userId == userId &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 150 &&
+             data.amount is number && data.amount > 0 &&
+             data.category is string && data.category.size() > 0 && data.category.size() <= 50 &&
+             data.date is string && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUser(request.resource.data);
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /expenses/{expenseId} {
+        allow get, delete: if isOwner(userId) && isValidId(userId) && isValidId(expenseId);
+        allow list: if isOwner(userId) && isValidId(userId);
+        allow create: if isOwner(userId) && isValidId(userId) && isValidId(expenseId) && isValidExpense(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidId(userId) && isValidId(expenseId) && isValidExpense(request.resource.data, userId) && request.resource.data.userId == resource.data.userId;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
